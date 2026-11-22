@@ -135,7 +135,9 @@ function setMode(newMode){
  document.getElementById("challenge").innerHTML=
  "<p>YOUR NEXT TRIAL AWAITS</p><h3>Ready for a challenge?</h3><p>Generate your first "+mode+" challenge.</p>";
 }
-
+const params = new URLSearchParams(window.location.search);
+const requestedMode = params.get("mode");
+if (requestedMode === "survivor" || requestedMode === "killer") setMode(requestedMode);
 function generate(){
  const level=document.getElementById("difficulty").value;
  const list=challenges[mode].map((c,i)=>({c,i}))
