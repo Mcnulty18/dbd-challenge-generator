@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DBD Challenge Generator</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#100d12;color:#eee;
+ font-family:Arial,sans-serif;
+ min-height:100vh;
+ background-image:radial-gradient(ellipse at top,#38202b,#100d12 65%);
+}
+header{text-align:center;padding:35px 15px 20px}
+h1{font-size:clamp(26px,5vw,44px);letter-spacing:3px;margin:0;color:#f4e8e8}
+header p{color:#bd9da8;letter-spacing:2px;font-size:12px}
+main{max-width:850px;margin:auto;padding:15px}
+.tabs{display:flex;gap:12px;margin:15px 0 25px}
+button,select{font:inherit;cursor:pointer}
+.tab{
+ flex:1;padding:17px 8px;border:1px solid #59434e;
+ border-radius:9px;background:#211922;color:#ddd;
+ font-weight:bold;letter-spacing:1px;
+}
+.tab.active.survivor{background:#285b43;border-color:#65c18c}
+.tab.active.killer{background:#702c35;border-color:#e16a78}
+.panel{background:#1c1720;border:1px solid #44333e;border-radius:14px;padding:22px}
+h2{margin-top:0;letter-spacing:2px}
+label{display:block;color:#c9b8c1;margin:16px 0 8px}
+select{
+ width:100%;padding:13px;border-radius:8px;
+ background:#100d12;color:white;border:1px solid #65505b;
+}
+.challenge{
+ margin-top:20px;padding:22px;border-radius:12px;
+ background:linear-gradient(145deg,#30212d,#19151d);
+ border:1px solid #59414f;min-height:280px;
+}
+.difficulty{display:inline-block;padding:7px 12px;border-radius:20px;
+ font-size:12px;font-weight:bold;letter-spacing:1px}
+.Easy{background:#245b43;color:#b8ffd1}
+.Medium{background:#74551f;color:#ffe2a0}
+.Hard{background:#702b35;color:#ffc0c8}
+h3{font-size:25px;margin:18px 0}
+.section{margin-top:18px;color:#c7b8c2;line-height:1.6}
+.section strong{display:block;color:#fff;margin-bottom:4px}
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.generate{
+ flex:1;min-width:180px;padding:16px;border:0;border-radius:9px;
+ background:#a32f48;color:white;font-weight:bold;letter-spacing:1px;
+}
+.generate:hover{background:#c44460}
+.secondary{padding:15px;border:1px solid #66505b;border-radius:9px;
+ background:#29212d;color:white}
+footer{text-align:center;color:#806d79;font-size:12px;padding:25px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>DEAD BY DAYLIGHT</h1>
+<p>THE ULTIMATE CHALLENGE GENERATOR</p>
+</header>
+<main>
+<div class="tabs">
+<button class="tab active survivor" id="survivorTab" onclick="setMode('survivor')">SURVIVOR</button>
+<button class="tab" id="killerTab" onclick="setMode('killer')">KILLER</button>
+</div>
+
+<div class="panel">
+<h2 id="modeTitle">SURVIVOR CHALLENGES</h2>
+<p id="modeDescription">Protect. Rescue. Escape. Survive.</p>
+
+<label for="difficulty">SELECT DIFFICULTY</label>
+<select id="difficulty">
+<option>All</option>
+<option>Easy</option>
+<option>Medium</option>
+<option>Hard</option>
+</select>
+
+<div class="challenge" id="challenge">
+<p>YOUR NEXT TRIAL AWAITS</p>
+<h3>Ready for a challenge?</h3>
+<p>Choose your difficulty and generate your first challenge.</p>
+</div>
+
+<div class="actions">
+<button class="generate" onclick="generate()">🎲 GENERATE CHALLENGE</button>
+<button class="secondary" onclick="generate()">↻ REROLL</button>
+</div>
+</div>
+</main>
+<footer>YOUR TRIAL. YOUR RULES. YOUR CHALLENGE.</footer>
+
+<script>
+const challenges={
+survivor:[
+["Operation: President Protection","Medium","Choose one teammate as the President. Keep them alive and prioritise their safety throughout the trial.","Take two protection hits for the President.","The President escapes.","The President dies."],
+["The Helpful Neighbour","Easy","Heal two teammates during the trial.","Complete a generator with another Survivor.","Complete both heals.","You are sacrificed."],
+["No Panic","Medium","Survive a chase lasting at least 60 seconds.","Escape the chase without dropping a pallet.","Complete the 60-second chase.","You are sacrificed."],
+["Untouchable","Hard","Escape the trial without ever being downed.","Complete at least one generator.","Escape without being downed.","You are downed."],
+["The Medic","Easy","Heal three health states during the trial.","Rescue someone from a hook.","Complete three health states of healing.","You are sacrificed."],
+["No Pallets Allowed","Hard","Escape the trial without dropping a single pallet.","Survive one chase for 45 seconds.","Escape without dropping a pallet.","You drop a pallet."],
+["The Bodyguard","Medium","Take two protection hits for other Survivors.","Safely unhook a teammate.","Take two protection hits and escape.","You are sacrificed."],
+["Last One Standing","Hard","Be the final Survivor alive and escape through the hatch.","Do not use a key.","Escape through the hatch.","You die."]
+],
+killer:[
+["The Relentless Hunter","Easy","Get at least eight successful hits during the trial.","Get a hit within 30 seconds of starting a chase.","Achieve eight hits.","The trial ends with fewer than eight hits."],
+["Nobody Leaves","Hard","Sacrifice all four Survivors.","Get your first hook before the first generator is completed.","Four sacrifices.","Any Survivor escapes."],
+["The Obsession","Medium","Find and chase the Obsession whenever possible.","Hook the Obsession three times.","Sacrifice the Obsession.","The Obsession escapes."],
+["No Mercy","Hard","Get a 4K without using your Killer power.","Get at least one sacrifice before the final generator.","Sacrifice all four Survivors.","Any Survivor escapes."],
+["The Silent Hunter","Medium","Get the first hit on three different Survivors before hooking anyone.","Down one Survivor without losing chase.","Hit three different Survivors first.","Hook someone before hitting all three."],
+["Hooked on You","Easy","Hook each Survivor at least once.","Get a second hook on two different Survivors.","Hook all four Survivors.","The trial ends before you hook everyone."],
+["Generator Guardian","Medium","Interrupt three different Survivors while they work on generators.","Damage a generator five times where possible.","Interrupt three different Survivors.","The trial ends before three interruptions."],
+["The Perfect Hunt","Hard","Get a 4K with no more than five generators completed.","Get a 3-hook stage on at least one Survivor.","Sacrifice all four Survivors.","Any Survivor escapes."]
+]
+};
+
+let mode="survivor";
+let last=-1;
+
+function setMode(newMode){
+ mode=newMode;
+ last=-1;
+ document.getElementById("survivorTab").classList.toggle("active",mode==="survivor");
+ document.getElementById("killerTab").classList.toggle("active",mode==="killer");
+ document.getElementById("survivorTab").classList.toggle("survivor",mode==="survivor");
+ document.getElementById("killerTab").classList.toggle("killer",mode==="killer");
+ document.getElementById("modeTitle").textContent=mode.toUpperCase()+" CHALLENGES";
+ document.getElementById("modeDescription").textContent=
+ mode==="survivor"?"Protect. Rescue. Escape. Survive.":"Hunt. Chase. Hook. Sacrifice.";
+ document.getElementById("challenge").innerHTML=
+ "<p>YOUR NEXT TRIAL AWAITS</p><h3>Ready for a challenge?</h3><p>Generate your first "+mode+" challenge.</p>";
+}
+
+function generate(){
+ const level=document.getElementById("difficulty").value;
+ const list=challenges[mode].map((c,i)=>({c,i}))
+ .filter(x=>level==="All"||x.c[1]===level);
+ if(!list.length)return;
+ let choices=list.filter(x=>x.i!==last);
+ if(!choices.length)choices=list;
+ const chosen=choices[Math.floor(Math.random()*choices.length)];
+ last=chosen.i;
+ const c=chosen.c;
+ document.getElementById("challenge").innerHTML=`
+ <span class="difficulty ${c[1]}">${c[1].toUpperCase()}</span>
+ <h3>${c[0]}</h3>
+ <div class="section"><strong>🎯 YOUR MISSION</strong>${c[2]}</div>
+ <div class="section"><strong>⭐ BONUS OBJECTIVE</strong>${c[3]}</div>
+ <div class="section"><strong>🏆 VICTORY CONDITION</strong>${c[4]}</div>
+ <div class="section"><strong>❌ FAILURE CONDITION</strong>${c[5]}</div>`;
+}
+</script>
+</body>
+</html>
